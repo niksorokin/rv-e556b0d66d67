@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Silow — for insurance operations</title><!-- rev:ins-v28-client -->
+<style>
+  @font-face { font-family:"Suisse Intl"; src:url("./fonts/SuisseIntl-Regular.otf") format("opentype"); font-weight:400; font-display:swap; }
+  @font-face { font-family:"Suisse Intl"; src:url("./fonts/SuisseIntl-Medium.otf") format("opentype"); font-weight:500; font-display:swap; }
+  @font-face { font-family:"Suisse Intl"; src:url("./fonts/SuisseIntl-SemiBold.otf") format("opentype"); font-weight:600; font-display:swap; }
+  @font-face { font-family:"Suisse Intl Mono"; src:url("./fonts/SuisseIntlMono-Regular.otf") format("opentype"); font-weight:400; font-display:swap; }
+
+  :root{
+    --ink:#0E0E0C; --ink-2:#2C2B27; --mute:#6B6A66; --faint:#9A9A95;
+    --paper:#FFFFFF; --paper-2:#F5F5F3; --accent:#3B5BFF;
+    --line:#E8E8E6; --line-2:#DADAD7;
+    --mono:"Suisse Intl Mono", ui-monospace, monospace;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{
+    font-family:"Suisse Intl", -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif;
+    background:var(--paper); color:var(--ink);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  main{ height:100vh; overflow-y:auto; overflow-x:hidden; scroll-snap-type:y mandatory; }
+  section{
+    height:100vh; min-height:560px; scroll-snap-align:start; scroll-snap-stop:always;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:9vh 56px 7vh; position:relative; overflow:hidden;
+    background:var(--paper);
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:14px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--mute); margin-bottom:28px;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--accent); flex:none; }
+  h1,h2{ text-wrap:balance; margin:0; font-weight:400; letter-spacing:-0.035em; line-height:1.02; }
+  h1{ font-size:clamp(56px, 6.6vw, 124px); }
+  h2{ font-size:clamp(48px, 5.4vw, 96px); }
+  em{ font-style:normal; color:var(--accent); }
+  .lede{ text-wrap:balance; margin:30px auto 0; max-width:880px; font-size:clamp(20px,1.7vw,28px); line-height:1.45; color:var(--mute); letter-spacing:-0.01em; }
+  .lede b{ color:var(--ink); font-weight:500; }
+  .quiet{ font-size:clamp(16px,1.2vw,20px); color:var(--mute); line-height:1.5; letter-spacing:-0.005em; }
+
+  /* chrome */
+  .top{ position:fixed; top:0; left:0; right:0; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:22px 34px; pointer-events:none; }
+  .top img{ width:26px; height:26px; display:block; transition:filter .4s; }
+  .top .r{ font-family:var(--mono); font-size:12.5px; letter-spacing:.14em; color:var(--faint); text-transform:uppercase; }
+    .top.on-dark .r{ color:rgba(255,255,255,.5); }
+  .counter{ position:fixed; right:34px; bottom:24px; z-index:10; font-family:var(--mono); font-size:12.5px; letter-spacing:.16em; color:var(--faint); }
+
+  .rise{ opacity:0; transform:translateY(16px); transition:opacity .9s var(--ease), transform .9s var(--ease); }
+  .rise.in{ opacity:1; transform:none; }
+  .d1{ transition-delay:.06s } .d2{ transition-delay:.16s } .d3{ transition-delay:.28s }
+
+  /* 01 cover */
+  .s-cover{ padding-top:8vh; }
+  .stream-band{ width:100vw; height:clamp(150px,22vh,260px); margin-bottom:5vh; }
+  .stream-band canvas{ width:100%; height:100%; display:block; }
+  .s-cover h1{ font-size:clamp(50px,5.5vw,104px); }
+  .s-cover .lede{ max-width:1000px; }
+  .offer{ margin-top:34px; display:inline-flex; align-items:center; gap:12px; padding:14px 28px; border-radius:999px; background:var(--accent); color:#fff; font-size:clamp(17px,1.3vw,21px); font-weight:500; box-shadow:0 18px 40px -20px rgba(59,91,255,.8); }
+  .offer i{ font-style:normal; opacity:.55; font-weight:400; }
+
+  /* 02 free month */
+  .s-month{ justify-content:center; }
+  .s-month h2{ font-size:clamp(56px,6.4vw,112px); }
+  .s-month .sub{ margin-top:18px; font-size:clamp(22px,2vw,34px); letter-spacing:-0.02em; color:var(--ink-2); }
+  .s-month .sub span{ color:var(--faint); padding:0 .35em; }
+  .tline{ margin-top:8vh; width:100%; max-width:min(1440px,80vw); position:relative; text-align:left; }
+  .tl-grid{ position:absolute; inset:0 0 0 0; display:grid; grid-template-columns:repeat(5,1fr); pointer-events:none; }
+  .tl-grid i{ border-left:1px dashed var(--line-2); }
+  .tl-grid i:last-child{ border-right:1px dashed var(--line-2); }
+  .tl-rows{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); row-gap:12px; padding:4px 0 0; }
+  .bar{ height:clamp(42px,5.4vh,62px); border-radius:14px; background:var(--ink); color:#fff; display:flex; align-items:center; padding:0 20px; font-size:clamp(16px,1.2vw,23px); font-weight:500; letter-spacing:-.01em; white-space:nowrap; margin:0 6px; }
+  .bar.acc{ background:var(--accent); box-shadow:0 14px 30px -16px rgba(59,91,255,.8); }
+  .bar small{ font-weight:400; opacity:.6; margin-left:10px; font-size:.86em; }
+  .tl-axis{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+  .tl-axis span{ font-family:var(--mono); font-size:clamp(12px,.8vw,15px); letter-spacing:.12em; text-transform:uppercase; color:var(--faint); padding-left:12px; }
+  .tl-note{ position:relative; display:grid; grid-template-columns:repeat(5,1fr); margin-top:12px; }
+  .tl-note span{ padding:0 12px; font-size:clamp(14px,1vw,19px); line-height:1.4; color:var(--mute); }
+
+  /* 03 layers (dark) */
+  section.dark{ background:#111214; color:#F2F2F0; }
+  section.dark h2 em{ color:#8EA4FF; }
+  .s-layers{ padding:9vh 0 5vh; justify-content:flex-start; }
+  .s-layers h2{ font-size:clamp(40px,4.2vw,72px); }
+  .layers{ margin-top:4.5vh; width:100%; flex:1 1 auto; min-height:0; display:grid; grid-template-rows:1fr 1fr 1.08fr; row-gap:2vh; }
+  .layer{ position:relative; min-height:0; display:flex; align-items:center; }
+  .lab{ position:absolute; left:max(40px, calc(50% - 760px)); top:50%; transform:translateY(-50%); z-index:3; text-align:left; font-family:var(--mono); font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.55); line-height:1.5; }
+  .lab b{ display:block; font-family:"Suisse Intl",sans-serif; font-weight:500; text-transform:none; letter-spacing:-.01em; font-size:clamp(20px,1.6vw,26px); color:#fff; margin-top:4px; }
+  .fade{ -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 22%, #000 86%, transparent 100%); mask-image:linear-gradient(90deg, transparent 0, #000 22%, #000 86%, transparent 100%); }
+  .row{ position:absolute; inset:0; display:flex; align-items:center; gap:clamp(14px,1.4vw,24px); padding-left:clamp(180px,16vw,300px); }
+  /* screens */
+  .wf{ flex:none; position:relative; height:88%; aspect-ratio:16/10; border-radius:8px; background:#2A2B2E; box-shadow:0 0 0 1px rgba(255,255,255,.06), 0 20px 40px -20px rgba(0,0,0,.7); overflow:visible; }
+  .wf .tb{ height:16%; display:flex; align-items:center; gap:4px; padding:0 8px; border-bottom:1px solid rgba(255,255,255,.05); }
+  .wf .tb i{ width:5px; height:5px; border-radius:50%; background:#55565A; }
+  .wf .tb u{ margin-left:10px; height:5px; width:55%; border-radius:3px; background:#3A3B3F; text-decoration:none; }
+  .wf .bd{ position:absolute; inset:16% 0 0 0; padding:8%; display:grid; gap:6%; }
+  .wf .bd i{ display:block; border-radius:3px; background:#3B3C40; }
+  .wf.a .bd{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:30% 6% 6% 1fr; }
+  .wf.a .bd i:nth-child(4),.wf.a .bd i:nth-child(5),.wf.a .bd i:nth-child(6){ grid-column:1/-1; }
+  .wf.a .bd i:nth-child(4){ width:40%; } .wf.a .bd i:nth-child(5){ width:70%; }
+  .wf.b .bd{ grid-template-columns:28% 1fr; grid-template-rows:1fr; }
+  .wf.b .bd i:nth-child(2){ background:linear-gradient(0deg,#3B3C40 0 100%); }
+  .wf.c .bd{ place-items:center; grid-template-rows:1fr; }
+  .wf.c .bd i{ width:56%; height:46%; background:#38393D; border:1px solid #47484C; }
+  .wf.d .bd{ grid-template-columns:repeat(8,1fr); grid-template-rows:1fr 8%; align-items:end; }
+  .wf.d .bd i{ background:#4A4B50; }
+  .wf.d .bd i:nth-child(9){ grid-column:1/-1; height:100%; background:#3B3C40; }
+  .wf.e .bd{ grid-template-rows:12% 12% 12% 12% 1fr; }
+  .wf.e .bd i:nth-child(odd){ width:62%; } .wf.e .bd i:nth-child(5){ width:100%; }
+  .cur{ position:absolute; z-index:2; display:flex; align-items:flex-start; gap:2px; animation:drift 7s ease-in-out infinite; }
+  .cur svg{ width:14px; height:16px; flex:none; filter:drop-shadow(0 2px 3px rgba(0,0,0,.4)); }
+  .cur span{ margin-top:12px; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#fff; padding:3px 7px; border-radius:4px; white-space:nowrap; }
+  @keyframes drift{ 0%,100%{ transform:translate(0,0) } 33%{ transform:translate(16px,-8px) } 66%{ transform:translate(-8px,10px) } }
+  /* data */
+  .dots{ position:absolute; inset:0; }
+  .dots canvas{ width:100%; height:100%; display:block; }
+  /* outputs */
+  .out{ flex:none; height:100%; display:flex; flex-direction:column; gap:10px; }
+  .out .sh{ flex:none; height:calc(100% - 30px); aspect-ratio:16/10; border-radius:9px; overflow:hidden; background:#fff; box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 26px 50px -22px rgba(0,0,0,.85); }
+  .out img{ width:100%; height:100%; object-fit:cover; object-position:top left; display:block; }
+  .out span{ height:20px; font-size:clamp(13px,1vw,15.5px); color:rgba(255,255,255,.78); text-align:left; }
+
+  /* 04–07 depth */
+  .s-depth{ padding:8.5vh 48px 4.5vh; justify-content:flex-start; }
+  .s-depth .eyebrow{ margin-bottom:14px; font-size:12.5px; }
+  .s-depth h2{ font-size:clamp(34px,3.3vw,58px); letter-spacing:-0.03em; }
+  .s-depth .line{ margin-top:12px; font-size:clamp(17px,1.3vw,22px); color:var(--mute); letter-spacing:-0.005em; }
+  .s-depth .line b{ color:var(--ink); font-weight:500; }
+  .appframe{ margin-top:3.2vh; width:min(1480px,100%); flex:1 1 auto; min-height:0; border-radius:16px; overflow:hidden; position:relative; background:#F4F5F7; box-shadow:0 0 0 1px rgba(14,14,12,.06), 0 40px 90px -40px rgba(14,14,12,.35); }
+  .appframe iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; }
+
+  /* 08 data control — Windows */
+  .s-sec{ padding:9vh 48px 5vh; justify-content:flex-start; }
+  .s-sec h2{ font-size:clamp(40px,4.2vw,72px); }
+  .desk{ margin-top:4vh; width:min(1400px,100%); flex:1 1 auto; min-height:0; position:relative; border-radius:18px; overflow:hidden;
+         background:#dfe8f6 url("./assets/win-wallpaper.jpg") center/cover no-repeat; box-shadow:0 0 0 1px rgba(14,14,12,.06), 0 40px 90px -40px rgba(14,14,12,.35);
+         display:flex; flex-direction:column; text-align:left; }
+  .desk-in{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:1fr 1fr 1fr; gap:clamp(18px,2vw,34px); padding:clamp(14px,2.4vh,30px) clamp(22px,2.6vw,44px); align-content:center; align-items:start; }
+  .wcol{ display:flex; flex-direction:column; min-height:0; }
+  .wcol:nth-child(2){ margin-top:clamp(10px,2vh,22px); } .wcol:nth-child(3){ margin-top:clamp(20px,4vh,44px); }
+  .wlab{ display:flex; align-items:center; gap:10px; margin:0 0 12px 4px; font-family:var(--mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:#1b2340; }
+  .wlab i{ font-style:normal; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.75); color:var(--accent); font-size:11.5px; letter-spacing:0; }
+  .win{ flex:none; display:flex; flex-direction:column; border-radius:9px; overflow:hidden;
+        background:rgba(246,247,250,.82); -webkit-backdrop-filter:blur(30px) saturate(1.6); backdrop-filter:blur(30px) saturate(1.6);
+        border:1px solid rgba(255,255,255,.7); box-shadow:0 0 0 1px rgba(0,0,0,.07), 0 18px 44px -12px rgba(16,32,80,.35);
+        font-family:"Segoe UI Variable Text","Segoe UI","Suisse Intl",sans-serif; color:#1a1a1a; }
+  .wt{ height:34px; flex:none; display:flex; align-items:center; padding-left:12px; font-size:12px; color:#333; }
+  .wt .ic{ width:16px; height:16px; border-radius:4px; margin-right:10px; flex:none; display:grid; place-items:center; color:#fff; font-size:9.5px; font-weight:600; }
+  .wt .ttl{ flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wt .ctl{ display:flex; height:100%; }
+  .wt .ctl span{ width:40px; display:grid; place-items:center; color:#444; }
+  .wt .ctl svg{ width:10px; height:10px; }
+  .wb{ margin:0 6px 6px; border-radius:6px; background:#fff; border:1px solid rgba(0,0,0,.05); padding:clamp(12px,2vh,20px) clamp(14px,1.3vw,22px); display:flex; flex-direction:column; overflow:hidden; }
+  .wb h4{ margin:0 0 clamp(8px,1.4vh,14px); font-size:clamp(14px,1.05vw,17px); font-weight:600; letter-spacing:-.005em; display:flex; justify-content:space-between; align-items:baseline; }
+  .wb h4 small{ font-weight:400; font-size:.78em; color:#777; }
+  .fld{ display:grid; grid-template-columns:clamp(78px,6.6vw,108px) 1fr; align-items:center; gap:10px; padding:clamp(4px,.75vh,8px) 0; font-size:clamp(12.5px,.92vw,15px); }
+  .fld label{ color:#6a6a6a; }
+  .fld.ta{ align-items:start; } .fld.ta div{ display:block; height:auto; min-height:clamp(52px,6.6vh,64px); white-space:normal; align-items:flex-start; padding:7px 10px; line-height:1.5; }
+  .fld div{ height:clamp(26px,3.3vh,32px); display:flex; align-items:center; padding:0 10px; border:1px solid #e3e3e3; border-bottom:1.5px solid #c9c9c9; border-radius:4px; background:#fdfdfd; white-space:nowrap; overflow:hidden; color:#1a1a1a; }
+  .tok{ display:inline-flex; align-items:center; height:1.7em; padding:0 .6em; border-radius:4px; background:#E7ECFF; color:var(--accent); font-family:var(--mono); font-size:.84em; letter-spacing:.06em; }
+  .kept{ display:flex; flex-direction:column; }
+  .kr{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:clamp(5px,.9vh,9px) 0; border-bottom:1px solid #eee; font-size:clamp(12.5px,.92vw,15px); }
+  .kr span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .kr b{ font-weight:500; font-variant-numeric:tabular-nums; color:var(--accent); white-space:nowrap; }
+  .kr.hot span{ font-weight:600; }
+  .gone{ padding-top:clamp(10px,1.6vh,16px); display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:#8a8a8a; }
+  .gone svg{ width:13px; height:13px; }
+  .taskbar{ flex:none; height:48px; display:flex; align-items:center; justify-content:center; position:relative; background:rgba(238,242,250,.72); -webkit-backdrop-filter:blur(24px) saturate(1.5); backdrop-filter:blur(24px) saturate(1.5); border-top:1px solid rgba(255,255,255,.6); }
+  .taskbar .apps{ display:flex; gap:6px; }
+  .taskbar .apps i{ width:34px; height:34px; border-radius:6px; display:grid; place-items:center; }
+  .taskbar .apps i.on{ background:rgba(255,255,255,.65); }
+  .taskbar .apps svg{ width:20px; height:20px; display:block; }
+  .tray{ position:absolute; right:18px; top:0; bottom:0; display:flex; flex-direction:column; justify-content:center; align-items:flex-end; font-family:"Segoe UI","Suisse Intl",sans-serif; font-size:11.5px; line-height:1.35; color:#222; }
+  .s-sec .quiet{ margin-top:2.6vh; }
+  .s-sec .quiet b{ color:var(--ink); font-weight:500; }
+
+  /* 09 deployment */
+  .s-dep h2{ font-size:clamp(52px,5.6vw,100px); }
+  .dep{ margin-top:8vh; width:100%; max-width:1180px; display:grid; grid-template-columns:1fr 1fr; text-align:left; }
+  .dep > div{ padding:6px clamp(28px,3.4vw,60px) 10px; }
+  .dep > div + div{ border-left:1px solid var(--line-2); }
+  .dep .k{ font-family:var(--mono); font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); }
+  .dep .t{ margin-top:16px; font-size:clamp(28px,2.6vw,44px); font-weight:500; letter-spacing:-.025em; line-height:1.08; }
+  .dep .b{ margin-top:16px; font-size:clamp(18px,1.4vw,23px); line-height:1.5; color:var(--mute); }
+  .s-dep .quiet{ margin-top:8vh; }
+  .s-dep .quiet b{ color:var(--ink); font-weight:500; }
+
+  /* 10 close */
+  .s-close h2{ font-size:clamp(60px,6.6vw,124px); }
+  .s-close .lede{ max-width:780px; }
+  .contact{ margin-top:46px; display:inline-flex; align-items:center; gap:12px; padding:15px 32px; border-radius:999px; background:var(--ink); color:#fff; text-decoration:none; font-size:clamp(18px,1.4vw,22px); font-weight:500; letter-spacing:-.01em; }
+  .contact span{ opacity:.5; font-weight:400; }
+
+  @media (max-width:900px){
+    section{ height:auto; min-height:100vh; padding:12vh 22px 8vh; }
+    .stream-band{ height:150px; }
+    .s-month .sub{ font-size:20px; }
+    .tline{ margin-top:5vh; }
+    .bar{ padding:0 8px; font-size:12.5px; margin:0 2px; border-radius:9px; height:38px; }
+    .bar small{ display:none; }
+    .tl-axis span{ font-size:10px; letter-spacing:.04em; padding-left:4px; }
+    .tl-note{ display:none; }
+    .s-layers{ padding:12vh 0 6vh; }
+    .s-layers h2{ padding:0 22px; }
+    .layers{ grid-template-rows:170px 150px 190px; flex:none; }
+    .lab{ left:18px; top:6px; transform:none; font-size:11px; }
+    .lab b{ font-size:17px; }
+    .row{ padding-left:18px; padding-top:54px; }
+    .wf{ height:100%; } .out{ height:100%; }
+    .fade{ -webkit-mask-image:linear-gradient(90deg,#000 80%,transparent); mask-image:linear-gradient(90deg,#000 80%,transparent); }
+    .s-depth{ padding:12vh 14px 6vh; }
+    .appframe{ flex:none; height:72vh; }
+    .s-sec{ padding:12vh 16px 6vh; }
+    .desk{ flex:none; }
+    .desk-in{ grid-template-columns:1fr; padding:18px 14px; }
+    .win{ flex:none; }
+    .taskbar .apps i:nth-child(n+5){ display:none; }
+    .dep{ grid-template-columns:1fr; margin-top:5vh; }
+    .dep > div + div{ border-left:0; border-top:1px solid var(--line-2); margin-top:26px; padding-top:26px; }
+    .eyebrow{ font-size:11.5px; letter-spacing:.12em; white-space:nowrap; }
+    .offer{ font-size:15px; padding:12px 18px; flex-wrap:wrap; justify-content:center; }
+  }
+  html.one main{ scroll-snap-type:none; }
+/* ===== v26-A ===== */
+/* 02 timeline */
+.tl2{ position:relative; margin-top:6.5vh; width:min(1240px,84vw); height:330px; text-align:left; }
+.tl2-grid{ position:absolute; left:0; right:0; top:44px; bottom:34px; display:grid; grid-template-columns:repeat(4,1fr); pointer-events:none; }
+.tl2-grid i{ border-left:1px dashed var(--line-2); }
+.tl2-grid i:last-child{ border-right:1px dashed var(--line-2); }
+.tl2-bar{ position:absolute; z-index:1; flex-direction:row; flex-wrap:nowrap; height:52px; border-radius:14px; display:flex; align-items:center; gap:14px; padding:0 20px; font-size:clamp(15px,1.15vw,19px); font-weight:500; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; }
+.tl2-bar small{ display:inline-block; flex:none; margin-left:auto; font-family:var(--mono); font-weight:400; font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:4px 8px; border-radius:6px; }
+.tl2-bar.setup{ top:58px; background:#fff; color:var(--ink); box-shadow:inset 0 0 0 1px var(--line-2); justify-content:center; }
+.tl2-bar.rec{ top:124px; background:var(--paper-2); color:var(--ink-2); }
+.tl2-bar.rec small{ background:#fff; color:var(--mute); }
+.tl2-bar.out{ top:190px; background:var(--accent); color:#fff; box-shadow:0 16px 34px -16px rgba(59,91,255,.75); }
+.tl2-bar.out small{ background:rgba(255,255,255,.18); color:#fff; }
+.tl2-bar.end{ top:256px; background:var(--ink); color:#fff; }
+.tl2-bar.end small{ background:rgba(255,255,255,.14); color:#fff; }
+.tl2-flag{ position:absolute; left:25%; top:0; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; font-size:14px; color:var(--mute); white-space:nowrap; }
+.tl2-flag b{ font-weight:500; color:var(--accent); font-size:15px; }
+.tl2-flag{ z-index:0; } .tl2-flag::after{ content:""; position:absolute; top:42px; left:50%; width:2px; height:148px; z-index:0; background:var(--accent); transform:translateX(-1px); border-radius:2px; }
+.tl2-axis{ position:absolute; left:0; right:0; bottom:0; height:18px; font-family:var(--mono); font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); }
+.tl2-axis span{ position:absolute; top:0; transform:translateX(-50%); white-space:nowrap; }
+.tl2-axis span:first-child{ transform:none; } .tl2-axis span:last-child{ transform:translateX(-100%); }
+
+/* 03 flow overlay */
+.layers{ position:relative; }
+#flow-canvas{ position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; }
+.s-layers .layer{ z-index:1; }
+
+/* 04–07 level path */
+.lvl{ display:inline-flex; align-items:center; gap:0; margin-bottom:16px; font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); }
+.lvl span{ display:inline-flex; align-items:center; gap:8px; }
+.lvl span + span::before{ content:""; width:36px; height:1px; background:var(--line-2); margin:0 12px; }
+.lvl i{ font-style:normal; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; box-shadow:inset 0 0 0 1px var(--line-2); font-size:11px; letter-spacing:0; }
+.lvl span.done{ color:var(--mute); } .lvl span.done i{ background:var(--paper-2); box-shadow:none; }
+.lvl span.on{ color:var(--ink); } .lvl span.on i{ background:var(--accent); color:#fff; box-shadow:none; }
+.s-depth .line{ max-width:980px; line-height:1.45; }
+
+/* 08 three separate screens */
+.s-sec .desk{ background:none !important; box-shadow:none !important; overflow:visible !important; border-radius:0; }
+.s-sec .desk-in{ padding:0 !important; align-items:stretch; }
+.s-sec .wcol{ margin-top:0 !important; }
+.screen{ position:relative; flex:1 1 auto; display:flex; flex-direction:column; justify-content:space-between; border-radius:14px; overflow:hidden; background:#dfe8f6 url("./assets/win-wallpaper.jpg") center/cover no-repeat; box-shadow:0 0 0 1px rgba(14,14,12,.08), 0 30px 70px -34px rgba(14,14,12,.45); }
+.screen > .win{ margin-bottom:clamp(14px,2.2vh,24px) !important; }
+.s-sec .desk{ flex:none !important; margin-top:5vh !important; }
+.screen > .win{ margin:clamp(14px,2.2vh,24px) clamp(14px,1.4vw,22px) 0; }
+.screen .taskbar{ height:40px; }
+.screen .taskbar .apps i{ width:28px; height:28px; } .screen .taskbar .apps svg{ width:17px; height:17px; }
+.screen .taskbar .tray{ font-size:10.5px; }
+.s-sec .wlab{ color:var(--ink); margin-left:2px; }
+.s-sec .wlab i{ background:var(--ink); color:#fff; }
+
+/* 10 */
+.site{ margin-top:40px; font-family:var(--mono); font-size:16px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+
+@media (max-width:900px){
+  .tl2{ height:auto; display:flex; flex-direction:column; gap:10px; margin-top:4vh; width:100%; }
+  .tl2-grid, .tl2-axis, .tl2-flag{ display:none; }
+  .tl2-bar{ position:static; width:100% !important; white-space:normal; height:auto; min-height:46px; padding:10px 14px; flex-wrap:wrap; }
+  .lvl span + span::before{ width:12px; margin:0 6px; } .lvl{ font-size:10px; letter-spacing:.04em; }
+  .screen{ aspect-ratio:auto; }
+}
+@media (prefers-reduced-motion:reduce){ #flow-canvas{ display:none; } }
+
+/* ===== v27-V1 · slide 03 isometric stack ===== */
+.s-iso .iso-stage{ margin-top:3vh; width:100%; flex:1 1 auto; min-height:0; position:relative; }
+.s-iso .iso-svg{ position:absolute; inset:0; width:100%; height:100%; display:block; overflow:visible; }
+.s-iso .iso-svg text{ font-family:"Suisse Intl", -apple-system, "Helvetica Neue", sans-serif; }
+.s-iso .iso-legend{ display:none; }
+@media (max-width:900px){
+  .s-iso .iso-stage{ flex:none; height:auto; aspect-ratio:760/700; margin-top:4vh; }
+  .s-iso .iso-labels{ display:none; }
+  .s-iso .iso-legend{ display:grid; gap:16px; list-style:none; margin:3vh 0 0; padding:0 26px; width:100%; text-align:left; }
+  .s-iso .iso-legend li{ display:grid; grid-template-columns:34px 1fr; column-gap:6px; padding-top:12px; border-top:1px solid rgba(255,255,255,.14); }
+  .s-iso .iso-legend i{ font-style:normal; font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:#8EA4FF; padding-top:4px; grid-row:span 2; }
+  .s-iso .iso-legend b{ font-weight:500; font-size:19px; color:#fff; letter-spacing:-.01em; }
+  .s-iso .iso-legend span{ font-size:14.5px; color:rgba(255,255,255,.6); margin-top:2px; }
+}
+
+/* v28 · restored recorder slide (from the original deck) */
+.s-rec{ padding:8vh 48px 5vh; }
+.s-rec h2{ font-size:clamp(52px,5.4vw,96px); max-width:none; }
+.s-rec .facts{ display:flex; justify-content:center; margin-top:26px; font-size:clamp(18px,1.4vw,23px); letter-spacing:-0.01em; color:var(--ink); }
+.s-rec .facts span{ padding:0 clamp(16px,1.6vw,28px); border-left:1px solid var(--line-2); line-height:1.1; }
+.s-rec .facts span:first-child{ border-left:0; }
+.s-rec .rec-wrap{ display:flex; align-items:center; justify-content:center; gap:clamp(36px,3.4vw,64px); margin-top:5vh; }
+.s-rec .rframe{ position:relative; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; box-shadow:0 1px 2px rgba(14,14,12,.04), 0 24px 60px -28px rgba(14,14,12,.22); }
+.s-rec .rframe img{ display:block; height:46vh; width:auto; max-width:60vw; }
+.s-rec .ring{ position:absolute; left:74.3%; top:1.2%; width:26px; height:26px; transform:translate(-50%,-50%); border-radius:50%; box-shadow:0 0 0 2px var(--accent), 0 0 0 7px rgba(59,91,255,.22); pointer-events:none; }
+.s-rec .rec-zoom{ margin:0; width:clamp(250px,21vw,380px); text-align:left; flex:none; }
+.s-rec .zf{ border-radius:14px; overflow:hidden; border:1px solid var(--line-2); box-shadow:0 0 0 4px rgba(59,91,255,.10), 0 30px 60px -24px rgba(14,14,12,.40); background:#222; }
+.s-rec .zf img{ display:block; width:100%; height:auto; }
+.s-rec figcaption{ margin-top:16px; font-family:var(--mono, "Suisse Intl Mono", monospace); font-size:14px; letter-spacing:.1em; line-height:1.6; text-transform:uppercase; color:var(--mute); }
+.s-rec figcaption b{ color:var(--accent); font-weight:400; }
+@media (max-width:900px){
+  .s-rec{ padding:12vh 18px 6vh; }
+  .s-rec .facts{ flex-wrap:wrap; gap:10px 0; } .s-rec .facts span{ font-size:16px; padding:0 12px; }
+  .s-rec .rec-wrap{ flex-direction:column; gap:22px; width:100%; }
+  .s-rec .rframe img{ height:auto; width:100%; max-width:none; }
+  .s-rec .rec-zoom{ width:min(320px,80%); }
+}
+
+.s-hipaa .body{ margin:22px 0 0; max-width:620px; font-size:clamp(21px,1.85vw,29px); line-height:1.5; color:var(--mute); letter-spacing:-0.008em; }
+.s-hipaa .body b{ color:var(--ink); font-weight:500; }
+.sec-split{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(40px,4.5vw,80px); align-items:center; max-width:1420px; width:100%; text-align:left; }
+.hipaa-restored{grid-template-columns:1.1fr .9fr;}
+.hipaa-restored h2{font-size:clamp(44px,4.6vw,78px); max-width:none;}
+.hipaa-right{text-align:left;}
+.stat-num{ font-weight:400; letter-spacing:-0.04em; line-height:.95; white-space:nowrap; }
+.stat-num small{ font-size:.46em; letter-spacing:-0.02em; }
+.hipaa-right .stat-num{font-size:clamp(88px,8.4vw,152px);}
+.hipaa-label{font-size:clamp(32px,3.2vw,56px);font-weight:500;letter-spacing:-.04em;}
+.hipaa-provider{margin-top:16px;color:var(--mute);font-size:clamp(16px,1.3vw,22px);}
+.hipaa-closing{margin-top:32px;padding-top:30px;border-top:1px solid var(--line);color:var(--accent);font-size:clamp(22px,2vw,32px);font-weight:500;line-height:1.2;letter-spacing:-.03em;}
+@media (max-width:900px){ .hipaa-restored{grid-template-columns:1fr;} .hipaa-right .stat-num{font-size:76px;} .s-hipaa{ padding:12vh 22px 6vh; } }
+.dep .hipaa{ margin-top:14px; padding-left:14px; border-left:2px solid var(--accent); font-size:clamp(15px,1.1vw,18px); line-height:1.45; color:var(--ink-2); }
+.tl2-axis.wk span, .tl2-axis.wk span:first-child, .tl2-axis.wk span:last-child{ transform:translateX(-50%); }
+
+</style>
+</head>
+<body>
+
+<div class="top" id="topbar">
+  <img src="./assets/logo-upd.svg" alt="Silow">
+  <span class="r">silow.ai · insurance</span>
+</div>
+<div class="counter" id="counter">01</div>
+
+<main id="deck">
+<section class="s-cover">
+  <div class="stream-band rise in" aria-hidden="true"><canvas id="stream-canvas"></canvas></div>
+  <div class="eyebrow rise in d1">Silow · for insurance operations</div>
+  <h1 class="rise in d2">See which step<br><em>is costing you the time.</em></h1>
+  <p class="lede rise in d3">Silow records how work runs across your apps and shows <b>what&nbsp;to&nbsp;automate&nbsp;first.</b></p>
+</section>
+<section class="s-rec">
+    <div class="eyebrow rise">How we do it <b>·</b> the app</div>
+    <h2 class="rise d1">A tiny recorder.<br><em>Every app, every task.</em></h2>
+    <div class="facts rise d2"><span>Windows · macOS · Linux</span><span>1-minute install</span><span>1–2% CPU</span><span>No connectors</span></div>
+    <div class="rec-wrap rise d3">
+      <div class="rframe"><img src="./assets/product-recording-win.png" alt="A Windows workday being recorded by Silow"><span class="ring" aria-hidden="true"></span></div>
+      <figure class="rec-zoom"><div class="zf"><img src="./assets/recorder-tray-win.png" alt="The Silow recorder in the Windows system tray"></div><figcaption>The whole recorder.<br><b>One icon in the tray.</b></figcaption></figure>
+    </div>
+  </section>
+<section class="s-sec">
+  <div class="eyebrow rise">Security</div>
+  <h2 class="rise d1">Your data stays <em>under your control.</em></h2>
+  <div class="desk rise d2">
+    <div class="desk-in">
+      <div class="wcol">
+        <div class="wlab"><i>1</i>Recorded</div>
+        <div class="screen">
+          <div class="win">
+          <div class="wt"><span class="ic" style="background:#6D4AC9">C</span><span class="ttl">ClaimCenter — New claim</span><span class="ctl"><span><svg viewBox="0 0 10 10"><path d="M0 5h10" stroke="#333"/></svg></span><span><svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9" rx="1.5" fill="none" stroke="#333"/></svg></span><span><svg viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10" stroke="#333"/></svg></span></span></div>
+          <div class="wb">
+            <h4>Loss details <small>FNOL</small></h4>
+            <div class="fld"><label>Claimant</label><div>Dana Whitfield</div></div>
+            <div class="fld"><label>Policy no.</label><div>HM-AU-88104421</div></div>
+            <div class="fld"><label>Loss date</label><div>10/21/2026 · 4:15 PM</div></div>
+            <div class="fld"><label>Location</label><div>1180 Harbor Rd, Portland</div></div>
+            <div class="fld"><label>Loss type</label><div>Auto · rear-end collision</div></div>
+            <div class="fld ta"><label>Description</label><div>Rear-ended at the light. Other driver Mark Ortiz, police report PR-55821.</div></div>
+          </div>
+        </div>
+          <div class="taskbar" aria-hidden="true">
+      <div class="apps">
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7.5" height="7.5" rx="1" fill="#1F6FEB"/><rect x="10.5" y="2" width="7.5" height="7.5" rx="1" fill="#2B7DF0"/><rect x="2" y="10.5" width="7.5" height="7.5" rx="1" fill="#2B7DF0"/><rect x="10.5" y="10.5" width="7.5" height="7.5" rx="1" fill="#3D8BF5"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5" fill="none" stroke="#333" stroke-width="1.6"/><path d="M12.3 12.3L17 17" stroke="#333" stroke-width="1.6" stroke-linecap="round"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 013.5 4H8l1.6 1.8h6.9A1.5 1.5 0 0118 7.3v7.2A1.5 1.5 0 0116.5 16h-13A1.5 1.5 0 012 14.5z" fill="#F4B829"/><path d="M2 8h16v6.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 14.5z" fill="#FFCF4A"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="14" rx="2.5" fill="#0F6CBD"/><path d="M5 7.5l5 3.3 5-3.3" fill="none" stroke="#fff" stroke-width="1.4"/></svg></i>
+        <i class="on" ><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#6D4AC9"/><path d="M12.5 7.2a3.6 3.6 0 100 5.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="3" fill="#1D7A45"/><path d="M6.5 6.5l7 7M13.5 6.5l-7 7" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></i>
+        <i ><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#3B5BFF"/><circle cx="10" cy="10" r="3.2" fill="#fff"/></svg></i>
+      </div>
+      <div class="tray"><span>4:16 PM</span><span>10/21/2026</span></div>
+    </div>
+        </div>
+      </div>
+      <div class="wcol">
+        <div class="wlab"><i>2</i>Masked</div>
+        <div class="screen">
+          <div class="win">
+          <div class="wt"><span class="ic" style="background:#6D4AC9">C</span><span class="ttl">ClaimCenter — New claim</span><span class="ctl"><span><svg viewBox="0 0 10 10"><path d="M0 5h10" stroke="#333"/></svg></span><span><svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9" rx="1.5" fill="none" stroke="#333"/></svg></span><span><svg viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10" stroke="#333"/></svg></span></span></div>
+          <div class="wb">
+            <h4>Loss details <small>FNOL</small></h4>
+            <div class="fld"><label>Claimant</label><div><span class="tok">NAME</span></div></div>
+            <div class="fld"><label>Policy no.</label><div><span class="tok">POLICY</span></div></div>
+            <div class="fld"><label>Loss date</label><div><span class="tok">DATE</span></div></div>
+            <div class="fld"><label>Location</label><div><span class="tok">ADDRESS</span></div></div>
+            <div class="fld"><label>Loss type</label><div>Auto · rear-end collision</div></div>
+            <div class="fld ta"><label>Description</label><div>Rear-ended at the light. Other driver <span class="tok">NAME</span>, police report <span class="tok">ID</span>.</div></div>
+          </div>
+        </div>
+          <div class="taskbar" aria-hidden="true">
+      <div class="apps">
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7.5" height="7.5" rx="1" fill="#1F6FEB"/><rect x="10.5" y="2" width="7.5" height="7.5" rx="1" fill="#2B7DF0"/><rect x="2" y="10.5" width="7.5" height="7.5" rx="1" fill="#2B7DF0"/><rect x="10.5" y="10.5" width="7.5" height="7.5" rx="1" fill="#3D8BF5"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5" fill="none" stroke="#333" stroke-width="1.6"/><path d="M12.3 12.3L17 17" stroke="#333" stroke-width="1.6" stroke-linecap="round"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 013.5 4H8l1.6 1.8h6.9A1.5 1.5 0 0118 7.3v7.2A1.5 1.5 0 0116.5 16h-13A1.5 1.5 0 012 14.5z" fill="#F4B829"/><path d="M2 8h16v6.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 14.5z" fill="#FFCF4A"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="14" rx="2.5" fill="#0F6CBD"/><path d="M5 7.5l5 3.3 5-3.3" fill="none" stroke="#fff" stroke-width="1.4"/></svg></i>
+        <i class="on" ><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#6D4AC9"/><path d="M12.5 7.2a3.6 3.6 0 100 5.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="3" fill="#1D7A45"/><path d="M6.5 6.5l7 7M13.5 6.5l-7 7" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></i>
+        <i ><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#3B5BFF"/><circle cx="10" cy="10" r="3.2" fill="#fff"/></svg></i>
+      </div>
+      <div class="tray"><span>4:16 PM</span><span>10/21/2026</span></div>
+    </div>
+        </div>
+      </div>
+      <div class="wcol">
+        <div class="wlab"><i>3</i>Kept</div>
+        <div class="screen">
+          <div class="win">
+          <div class="wt"><span class="ic" style="background:#3B5BFF">S</span><span class="ttl">Silow — FNOL to claim set-up</span><span class="ctl"><span><svg viewBox="0 0 10 10"><path d="M0 5h10" stroke="#333"/></svg></span><span><svg viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9" rx="1.5" fill="none" stroke="#333"/></svg></span><span><svg viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10" stroke="#333"/></svg></span></span></div>
+          <div class="wb">
+            <h4>Steps and time <small>per notice</small></h4>
+            <div class="kept">
+              <div class="kr"><span>Read the email and attachments</span><b>3.7 min</b></div>
+              <div class="kr"><span>Find the policy, check coverage</span><b>4.5 min</b></div>
+              <div class="kr hot"><span>Create claim, re-key loss details</span><b>6.0 min</b></div>
+              <div class="kr"><span>Match and index attachments</span><b>5.6 min</b></div>
+              <div class="kr"><span>Triage and assign an adjuster</span><b>1.9 min</b></div>
+              <div class="kr"><span>Acknowledge to the claimant</span><b>1.9 min</b></div>
+              <div class="gone"><svg viewBox="0 0 14 14"><path d="M2 4h10M5 4V2.5h4V4M3.5 4l.7 8h5.6l.7-8" fill="none" stroke="#8a8a8a" stroke-width="1.2"/></svg>Screenshot deleted</div>
+            </div>
+          </div>
+        </div>
+          <div class="taskbar" aria-hidden="true">
+      <div class="apps">
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="2" width="7.5" height="7.5" rx="1" fill="#1F6FEB"/><rect x="10.5" y="2" width="7.5" height="7.5" rx="1" fill="#2B7DF0"/><rect x="2" y="10.5" width="7.5" height="7.5" rx="1" fill="#2B7DF0"/><rect x="10.5" y="10.5" width="7.5" height="7.5" rx="1" fill="#3D8BF5"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5" fill="none" stroke="#333" stroke-width="1.6"/><path d="M12.3 12.3L17 17" stroke="#333" stroke-width="1.6" stroke-linecap="round"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 013.5 4H8l1.6 1.8h6.9A1.5 1.5 0 0118 7.3v7.2A1.5 1.5 0 0116.5 16h-13A1.5 1.5 0 012 14.5z" fill="#F4B829"/><path d="M2 8h16v6.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 14.5z" fill="#FFCF4A"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="3" width="16" height="14" rx="2.5" fill="#0F6CBD"/><path d="M5 7.5l5 3.3 5-3.3" fill="none" stroke="#fff" stroke-width="1.4"/></svg></i>
+        <i ><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#6D4AC9"/><path d="M12.5 7.2a3.6 3.6 0 100 5.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></i>
+        <i><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="3" fill="#1D7A45"/><path d="M6.5 6.5l7 7M13.5 6.5l-7 7" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></i>
+        <i class="on" ><svg viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="4" fill="#3B5BFF"/><circle cx="10" cy="10" r="3.2" fill="#fff"/></svg></i>
+      </div>
+      <div class="tray"><span>4:17 PM</span><span>10/21/2026</span></div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="quiet rise d3">Leadership sees company and team reports, managers their own teams. <b>Names are anonymous by default.</b></p>
+</section>
+<section class="s-hipaa">
+    <div class="sec-split hipaa-restored">
+      <div>
+        <div class="eyebrow rise">Deployed in a customer environment</div>
+        <h2 class="rise d1">HIPAA compliance?<br><em>Solved.</em></h2>
+        <p class="body rise d2">Silow maps workflows involving medical records. It runs <b>entirely on the customer’s servers</b>, supporting the customer’s HIPAA compliance requirements.</p>
+      </div>
+      <div class="hipaa-right rise d3">
+        <div class="stat-num">100<small>%</small></div>
+        <div class="hipaa-label">On-premises.</div>
+        <div class="hipaa-provider">With the customer’s chosen model provider.</div>
+        <div class="hipaa-closing">Secure deployment.<br>Your infrastructure. Your control.</div>
+      </div>
+    </div>
+  </section>
+<section class="s-dep">
+  <div class="eyebrow rise">Deployment</div>
+  <h2 class="rise d1">Our servers <em>or yours.</em></h2>
+  <div class="dep rise d2">
+    <div>
+      <div class="k">Silow-hosted</div>
+      <div class="t">Fastest start.</div>
+      <div class="b">Install the recorder and go. Raw captures are deleted within 48 hours.</div>
+    </div>
+    <div>
+      <div class="k">On your servers</div>
+      <div class="t">Inside your perimeter.</div>
+      <div class="b">One Docker Compose package with SSO. Your data never leaves your perimeter and never reaches Silow.</div>
+    </div>
+  </div>
+</section>
+<section class="s-month">
+  <div class="eyebrow rise">How we start</div>
+  <h2 class="rise d1">Four weeks <em>to the full picture.</em></h2>
+  <div class="sub rise d1">20–30 people<span>·</span>one team you choose<span>·</span>results from week one</div>
+  <div class="tl2 rise d2" aria-label="Four-week timeline">
+    <div class="tl2-grid"><i></i><i></i><i></i><i></i></div>
+    <div class="tl2-flag"><b>After week 1</b>reports and plan are live</div>
+    <div class="tl2-bar setup" style="left:0;width:9%">Set up</div>
+    <div class="tl2-bar rec" style="left:0;width:100%">Recording runs in the background<small>all four weeks</small></div>
+    <div class="tl2-bar out" style="left:25%;width:75%">Reports · process maps · automation plan<small>updated every week</small></div>
+    <div class="tl2-bar end" style="left:80%;width:20%">Readout<small>end of month</small></div>
+    <div class="tl2-axis wk"><span style="left:12.5%">Week 1</span><span style="left:37.5%">Week 2</span><span style="left:62.5%">Week 3</span><span style="left:87.5%">Week 4</span></div>
+  </div>
+</section>
+<section class="dark s-layers s-iso">
+  <h2 class="rise">From work screens <em>to any report.</em></h2>
+  <div class="iso-stage rise d1">
+<svg class="iso-svg" viewBox="0 0 1440 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Three stacked layers: work screens with role cursors, a field of data tiles, and the reports built from them">
+<defs>
+<linearGradient id="iso-tail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8EA4FF" stop-opacity="0"/><stop offset=".75" stop-color="#8EA4FF" stop-opacity=".55"/><stop offset="1" stop-color="#E6EBFF" stop-opacity=".95"/></linearGradient>
+<radialGradient id="iso-halo"><stop offset="0" stop-color="#B9C6FF" stop-opacity=".75"/><stop offset=".35" stop-color="#6F86FF" stop-opacity=".32"/><stop offset="1" stop-color="#3B5BFF" stop-opacity="0"/></radialGradient>
+<radialGradient id="iso-bg" cx=".55" cy=".5" r=".5"><stop offset="0" stop-color="#3B5BFF" stop-opacity=".10"/><stop offset="1" stop-color="#3B5BFF" stop-opacity="0"/></radialGradient>
+<linearGradient id="iso-top0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1F2130"/><stop offset="1" stop-color="#15161D"/></linearGradient>
+<linearGradient id="iso-top1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A1B22"/><stop offset="1" stop-color="#141519"/></linearGradient>
+<linearGradient id="iso-top2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#18191D"/><stop offset="1" stop-color="#131417"/></linearGradient>
+<filter id="iso-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="22"/></filter>
+<filter id="iso-tglow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+<clipPath id="iso-cl0" clipPathUnits="userSpaceOnUse"><rect x="20" y="20" width="230" height="150" rx="5"/></clipPath>
+<clipPath id="iso-cl1" clipPathUnits="userSpaceOnUse"><rect x="270" y="20" width="230" height="150" rx="5"/></clipPath>
+<clipPath id="iso-cl2" clipPathUnits="userSpaceOnUse"><rect x="20" y="190" width="230" height="150" rx="5"/></clipPath>
+<clipPath id="iso-cl3" clipPathUnits="userSpaceOnUse"><rect x="270" y="190" width="230" height="150" rx="5"/></clipPath>
+</defs>
+<ellipse cx="879.6" cy="357.2" rx="620" ry="380" fill="url(#iso-bg)"/>
+<g class="iso-plate">
+<polygon points="814,412 1240.4,583.6 945.2,702.4 518.8,530.8" fill="#000" opacity=".5" filter="url(#iso-blur)" transform="translate(0 18)"/>
+<polygon points="518.8,530.8 945.2,702.4 945.2,711.4 518.8,539.8" fill="#0C0D10"/>
+<polygon points="945.2,702.4 1240.4,583.6 1240.4,592.6 945.2,711.4" fill="#08090B"/>
+<polygon points="814,412 1240.4,583.6 945.2,702.4 518.8,530.8" fill="url(#iso-top2)" stroke="rgba(142,164,255,.22)" stroke-width="1"/>
+<polyline points="518.8,530.8 945.2,702.4 1240.4,583.6" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+<g transform="matrix(0.82 0.33 -0.82 0.33 814 412)">
+<g stroke="rgba(255,255,255,.035)" stroke-width="1" fill="none">
+<line x1="40" y1="0" x2="40" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="80" y1="0" x2="80" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="120" y1="0" x2="120" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="160" y1="0" x2="160" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="200" y1="0" x2="200" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="240" y1="0" x2="240" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="280" y1="0" x2="280" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="320" y1="0" x2="320" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="360" y1="0" x2="360" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="400" y1="0" x2="400" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="440" y1="0" x2="440" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="480" y1="0" x2="480" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="40" x2="520" y2="40" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="80" x2="520" y2="80" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="120" x2="520" y2="120" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="160" x2="520" y2="160" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="200" x2="520" y2="200" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="240" x2="520" y2="240" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="280" x2="520" y2="280" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="320" x2="520" y2="320" vector-effect="non-scaling-stroke"/>
+</g>
+<g clip-path="url(#iso-cl0)"><image href="./assets/views/person.jpg" x="20" y="20" width="230" height="150" preserveAspectRatio="xMinYMin slice"/><rect class="iso-dim" id="iso-dim0" x="20" y="20" width="230" height="150" fill="#101114" opacity=".2"/></g><rect x="20" y="20" width="230" height="150" rx="5" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect class="iso-sf" id="iso-sf0" x="20" y="20" width="230" height="150" rx="5" fill="none" stroke="#8EA4FF" stroke-width="1.4" vector-effect="non-scaling-stroke" opacity="0"/>
+<g clip-path="url(#iso-cl1)"><image href="./assets/views/plan.jpg" x="270" y="20" width="230" height="150" preserveAspectRatio="xMinYMin slice"/><rect class="iso-dim" id="iso-dim1" x="270" y="20" width="230" height="150" fill="#101114" opacity=".2"/></g><rect x="270" y="20" width="230" height="150" rx="5" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect class="iso-sf" id="iso-sf1" x="270" y="20" width="230" height="150" rx="5" fill="none" stroke="#8EA4FF" stroke-width="1.4" vector-effect="non-scaling-stroke" opacity="0"/>
+<g clip-path="url(#iso-cl2)"><image href="./assets/views/company.jpg" x="20" y="190" width="230" height="150" preserveAspectRatio="xMinYMin slice"/><rect class="iso-dim" id="iso-dim2" x="20" y="190" width="230" height="150" fill="#101114" opacity=".2"/></g><rect x="20" y="190" width="230" height="150" rx="5" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect class="iso-sf" id="iso-sf2" x="20" y="190" width="230" height="150" rx="5" fill="none" stroke="#8EA4FF" stroke-width="1.4" vector-effect="non-scaling-stroke" opacity="0"/>
+<g clip-path="url(#iso-cl3)"><image href="./assets/views/board.jpg" x="270" y="190" width="230" height="150" preserveAspectRatio="xMinYMin slice"/><rect class="iso-dim" id="iso-dim3" x="270" y="190" width="230" height="150" fill="#101114" opacity=".2"/></g><rect x="270" y="190" width="230" height="150" rx="5" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1" vector-effect="non-scaling-stroke"/><rect class="iso-sf" id="iso-sf3" x="270" y="190" width="230" height="150" rx="5" fill="none" stroke="#8EA4FF" stroke-width="1.4" vector-effect="non-scaling-stroke" opacity="0"/>
+<g id="iso-r2"></g></g></g>
+<g stroke="rgba(142,164,255,.28)" stroke-width="1" stroke-dasharray="2 5" fill="none">
+<line x1="518.8" y1="342.8" x2="518.8" y2="530.8"/>
+<line x1="945.2" y1="514.4" x2="945.2" y2="702.4"/>
+<line x1="1240.4" y1="395.6" x2="1240.4" y2="583.6"/>
+</g><g stroke="rgba(142,164,255,.16)" stroke-width="1" stroke-dasharray="1.5 5" fill="none">
+<line x1="818.1" y1="299.4" x2="818.1" y2="499.4"/>
+<line x1="654.1" y1="332.4" x2="654.1" y2="532.5"/>
+<line x1="695.1" y1="382" x2="695.1" y2="582"/>
+<line x1="818.1" y1="398.5" x2="818.1" y2="598.5"/>
+<line x1="859.1" y1="448" x2="859.1" y2="648"/>
+<line x1="941.1" y1="448" x2="941.1" y2="648"/>
+<line x1="1023.1" y1="382" x2="1023.1" y2="582"/>
+<line x1="1146.1" y1="398.5" x2="1146.1" y2="598.5"/>
+</g><g stroke="#8EA4FF" stroke-width="1" fill="none">
+<line class="iso-hl" id="iso-hl1-0" x1="818.1" y1="299.4" x2="818.1" y2="499.4" opacity="0"/>
+<line class="iso-hl" id="iso-hl1-1" x1="654.1" y1="332.4" x2="654.1" y2="532.5" opacity="0"/>
+<line class="iso-hl" id="iso-hl1-2" x1="695.1" y1="382" x2="695.1" y2="582" opacity="0"/>
+<line class="iso-hl" id="iso-hl1-3" x1="818.1" y1="398.5" x2="818.1" y2="598.5" opacity="0"/>
+<line class="iso-hl" id="iso-hl1-4" x1="859.1" y1="448" x2="859.1" y2="648" opacity="0"/>
+<line class="iso-hl" id="iso-hl1-5" x1="941.1" y1="448" x2="941.1" y2="648" opacity="0"/>
+<line class="iso-hl" id="iso-hl1-6" x1="1023.1" y1="382" x2="1023.1" y2="582" opacity="0"/>
+<line class="iso-hl" id="iso-hl1-7" x1="1146.1" y1="398.5" x2="1146.1" y2="598.5" opacity="0"/>
+</g><g id="iso-p1"></g>
+<g class="iso-plate">
+<polygon points="814,212 1240.4,383.6 945.2,502.4 518.8,330.8" fill="#000" opacity=".5" filter="url(#iso-blur)" transform="translate(0 18)"/>
+<polygon points="518.8,330.8 945.2,502.4 945.2,511.4 518.8,339.8" fill="#0C0D10"/>
+<polygon points="945.2,502.4 1240.4,383.6 1240.4,392.6 945.2,511.4" fill="#08090B"/>
+<polygon points="814,212 1240.4,383.6 945.2,502.4 518.8,330.8" fill="url(#iso-top1)" stroke="rgba(142,164,255,.26)" stroke-width="1"/>
+<polyline points="518.8,330.8 945.2,502.4 1240.4,383.6" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+<g transform="matrix(0.82 0.33 -0.82 0.33 814 212)">
+<g>
+<rect x="13" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="23" y="28.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="23" y="35" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="63" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="113" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="129" y="24" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="163" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="173" y="28.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="173" y="35" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="213" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="235" cy="30" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M235 30V26M235 30H238" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="263" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="285" cy="30" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M285 30V26M285 30H288" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="313" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="329" y="24" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="363" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="413" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="463" y="8" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="485" cy="30" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M485 30V26M485 30H488" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="13" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="35" cy="80" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M35 80V76M35 80H38" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="63" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="85" cy="80" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M85 80V76M85 80H88" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="113" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="163" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="173" y="78.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="173" y="85" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="213" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="229" y="74" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="263" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="285" cy="80" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M285 80V76M285 80H288" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="313" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="335" cy="80" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M335 80V76M335 80H338" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="363" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="373" y="78.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="373" y="85" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="413" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="435" cy="80" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M435 80V76M435 80H438" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="463" y="58" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="479" y="74" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="13" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="63" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="113" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="123" y="128.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="123" y="135" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="163" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="185" cy="130" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M185 130V126M185 130H188" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="213" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="263" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="285" cy="130" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M285 130V126M285 130H288" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="313" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="335" cy="130" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M335 130V126M335 130H338" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="363" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="385" cy="130" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M385 130V126M385 130H388" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="413" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="463" y="108" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="13" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="29" y="174" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="63" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="79" y="174" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="113" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="163" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="179" y="174" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="213" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="223" y="178.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="223" y="185" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="263" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="279" y="174" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="313" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="329" y="174" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="363" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="379" y="174" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="413" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="463" y="158" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="485" cy="180" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M485 180V176M485 180H488" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="13" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="35" cy="230" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M35 230V226M35 230H38" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="63" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="113" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="123" y="228.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="123" y="235" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="163" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="179" y="224" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="213" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="235" cy="230" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M235 230V226M235 230H238" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="263" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="285" cy="230" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M285 230V226M285 230H288" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="313" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="329" y="224" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="363" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="373" y="228.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="373" y="235" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="413" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="463" y="208" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="473" y="228.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="473" y="235" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="13" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="29" y="274" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="63" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="79" y="274" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="113" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="135" cy="280" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M135 280V276M135 280H138" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="163" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="213" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="235" cy="280" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M235 280V276M235 280H238" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="263" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="273" y="278.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="273" y="285" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="313" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="329" y="274" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="363" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="379" y="274" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="413" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="429" y="274" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="463" y="258" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="479" y="274" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="13" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="29" y="324" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="63" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="85" cy="330" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M85 330V326M85 330H88" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="113" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="135" cy="330" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M135 330V326M135 330H138" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="163" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="173" y="328.5" width="24" height="3" rx="1.5" fill="rgba(255,255,255,.13)"/><rect x="173" y="335" width="14" height="3" rx="1.5" fill="rgba(255,255,255,.08)"/>
+<rect x="213" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="263" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="279" y="324" width="12" height="12" rx="2" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="313" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="363" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="385" cy="330" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M385 330V326M385 330H388" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="413" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="435" cy="330" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M435 330V326M435 330H438" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="463" y="308" width="44" height="44" rx="3" fill="rgba(255,255,255,.028)" stroke="rgba(255,255,255,.08)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<circle cx="485" cy="330" r="6" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/><path d="M485 330V326M485 330H488" stroke="rgba(255,255,255,.14)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+</g>
+<g fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M135 130H85V280" stroke="rgba(142,164,255,.16)" vector-effect="non-scaling-stroke"/>
+<path class="iso-seg" id="iso-seg1" d="M135 130H85V280" stroke="#8EA4FF" vector-effect="non-scaling-stroke" opacity=".35"/>
+<path d="M85 280H185V330" stroke="rgba(142,164,255,.16)" vector-effect="non-scaling-stroke"/>
+<path class="iso-seg" id="iso-seg2" d="M85 280H185V330" stroke="#8EA4FF" vector-effect="non-scaling-stroke" opacity=".35"/>
+<path d="M185 330H285V280" stroke="rgba(142,164,255,.16)" vector-effect="non-scaling-stroke"/>
+<path class="iso-seg" id="iso-seg3" d="M185 330H285V280" stroke="#8EA4FF" vector-effect="non-scaling-stroke" opacity=".35"/>
+<path d="M285 280H385V330" stroke="rgba(142,164,255,.16)" vector-effect="non-scaling-stroke"/>
+<path class="iso-seg" id="iso-seg4" d="M285 280H385V330" stroke="#8EA4FF" vector-effect="non-scaling-stroke" opacity=".35"/>
+<path d="M385 330H435V280" stroke="rgba(142,164,255,.16)" vector-effect="non-scaling-stroke"/>
+<path class="iso-seg" id="iso-seg5" d="M385 330H435V280" stroke="#8EA4FF" vector-effect="non-scaling-stroke" opacity=".35"/>
+<path d="M435 280H385V130" stroke="rgba(142,164,255,.16)" vector-effect="non-scaling-stroke"/>
+<path class="iso-seg" id="iso-seg6" d="M435 280H385V130" stroke="#8EA4FF" vector-effect="non-scaling-stroke" opacity=".35"/>
+<path d="M385 130H485V80" stroke="rgba(142,164,255,.16)" vector-effect="non-scaling-stroke"/>
+<path class="iso-seg" id="iso-seg7" d="M385 130H485V80" stroke="#8EA4FF" vector-effect="non-scaling-stroke" opacity=".35"/>
+</g>
+<rect x="113" y="108" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile0" x="113" y="108" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<rect x="63" y="258" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile1" x="63" y="258" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<rect x="163" y="308" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile2" x="163" y="308" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<rect x="263" y="258" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile3" x="263" y="258" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<rect x="363" y="308" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile4" x="363" y="308" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<rect x="413" y="258" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile5" x="413" y="258" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<rect x="363" y="108" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile6" x="363" y="108" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<rect x="463" y="58" width="44" height="44" rx="3" fill="none" stroke="rgba(142,164,255,.38)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect class="iso-tile" id="iso-tile7" x="463" y="58" width="44" height="44" rx="3" fill="#3B5BFF" stroke="#B4C2FF" stroke-width="1" vector-effect="non-scaling-stroke" filter="url(#iso-tglow)" opacity=".42"/>
+<g id="iso-r1"></g></g></g>
+<g stroke="rgba(142,164,255,.28)" stroke-width="1" stroke-dasharray="2 5" fill="none">
+<line x1="518.8" y1="142.8" x2="518.8" y2="330.8"/>
+<line x1="945.2" y1="314.4" x2="945.2" y2="502.4"/>
+<line x1="1240.4" y1="195.6" x2="1240.4" y2="383.6"/>
+</g><g stroke="rgba(142,164,255,.16)" stroke-width="1" stroke-dasharray="1.5 5" fill="none">
+<line x1="818.1" y1="99.5" x2="818.1" y2="299.4"/>
+<line x1="654.1" y1="132.4" x2="654.1" y2="332.4"/>
+<line x1="695.1" y1="182" x2="695.1" y2="382"/>
+<line x1="818.1" y1="198.5" x2="818.1" y2="398.5"/>
+<line x1="859.1" y1="248" x2="859.1" y2="448"/>
+<line x1="941.1" y1="248" x2="941.1" y2="448"/>
+<line x1="1023.1" y1="182" x2="1023.1" y2="382"/>
+<line x1="1146.1" y1="198.5" x2="1146.1" y2="398.5"/>
+</g><g stroke="#8EA4FF" stroke-width="1" fill="none">
+<line class="iso-hl" id="iso-hl0-0" x1="818.1" y1="99.5" x2="818.1" y2="299.4" opacity="0"/>
+<line class="iso-hl" id="iso-hl0-1" x1="654.1" y1="132.4" x2="654.1" y2="332.4" opacity="0"/>
+<line class="iso-hl" id="iso-hl0-2" x1="695.1" y1="182" x2="695.1" y2="382" opacity="0"/>
+<line class="iso-hl" id="iso-hl0-3" x1="818.1" y1="198.5" x2="818.1" y2="398.5" opacity="0"/>
+<line class="iso-hl" id="iso-hl0-4" x1="859.1" y1="248" x2="859.1" y2="448" opacity="0"/>
+<line class="iso-hl" id="iso-hl0-5" x1="941.1" y1="248" x2="941.1" y2="448" opacity="0"/>
+<line class="iso-hl" id="iso-hl0-6" x1="1023.1" y1="182" x2="1023.1" y2="382" opacity="0"/>
+<line class="iso-hl" id="iso-hl0-7" x1="1146.1" y1="198.5" x2="1146.1" y2="398.5" opacity="0"/>
+</g><g id="iso-p0"></g>
+<g class="iso-plate">
+<polygon points="814,12 1240.4,183.6 945.2,302.4 518.8,130.8" fill="#3B5BFF" opacity=".22" filter="url(#iso-blur)" transform="translate(0 14)"/>
+<polygon points="518.8,130.8 945.2,302.4 945.2,311.4 518.8,139.8" fill="#0C0D10"/>
+<polygon points="945.2,302.4 1240.4,183.6 1240.4,192.6 945.2,311.4" fill="#08090B"/>
+<polygon points="814,12 1240.4,183.6 945.2,302.4 518.8,130.8" fill="url(#iso-top0)" stroke="rgba(142,164,255,.42)" stroke-width="1"/>
+<polyline points="518.8,130.8 945.2,302.4 1240.4,183.6" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+<g transform="matrix(0.82 0.33 -0.82 0.33 814 12)">
+<g stroke="rgba(255,255,255,.035)" stroke-width="1" fill="none">
+<line x1="40" y1="0" x2="40" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="80" y1="0" x2="80" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="120" y1="0" x2="120" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="160" y1="0" x2="160" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="200" y1="0" x2="200" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="240" y1="0" x2="240" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="280" y1="0" x2="280" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="320" y1="0" x2="320" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="360" y1="0" x2="360" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="400" y1="0" x2="400" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="440" y1="0" x2="440" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="480" y1="0" x2="480" y2="360" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="40" x2="520" y2="40" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="80" x2="520" y2="80" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="120" x2="520" y2="120" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="160" x2="520" y2="160" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="200" x2="520" y2="200" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="240" x2="520" y2="240" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="280" x2="520" y2="280" vector-effect="non-scaling-stroke"/>
+<line x1="0" y1="320" x2="520" y2="320" vector-effect="non-scaling-stroke"/>
+</g>
+<g transform="translate(20 20)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="8" y="19" width="34" height="68" rx="2"/>
+<rect x="48" y="19" width="94" height="68" rx="2" fill="#2F3036"/>
+<rect x="56" y="28" width="52" height="4" rx="2"/>
+<rect x="56" y="37" width="72" height="4" rx="2"/>
+<rect x="56" y="50" width="78" height="28" rx="2"/>
+</g>
+<rect class="iso-wh" id="iso-wh0" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(185 20)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="10" y="20" width="90" height="4" rx="2"/>
+<rect x="10" y="32" width="120" height="4" rx="2"/>
+<rect x="10" y="44" width="70" height="4" rx="2"/>
+<rect x="10" y="56" width="110" height="4" rx="2"/>
+<rect x="10" y="68" width="60" height="4" rx="2"/>
+<rect x="10" y="80" width="130" height="7" rx="2"/>
+</g>
+<rect class="iso-wh" id="iso-wh1" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(350 20)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="40" y="22" width="70" height="62" rx="3" fill="#2F3036" stroke="#45464D" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="50" y="32" width="50" height="5" rx="2.5"/>
+<rect x="50" y="43" width="50" height="8" rx="2"/>
+<rect x="50" y="56" width="50" height="8" rx="2"/>
+<rect x="62" y="70" width="26" height="7" rx="3.5" fill="#3E4048"/>
+</g>
+<rect class="iso-wh" id="iso-wh2" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(20 129)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="12" y="56" width="10" height="26" rx="1.5" fill="#43444B"/>
+<rect x="28" y="42" width="10" height="40" rx="1.5" fill="#43444B"/>
+<rect x="44" y="50" width="10" height="32" rx="1.5" fill="#43444B"/>
+<rect x="60" y="32" width="10" height="50" rx="1.5" fill="#43444B"/>
+<rect x="76" y="45" width="10" height="37" rx="1.5" fill="#43444B"/>
+<rect x="92" y="24" width="10" height="58" rx="1.5" fill="#43444B"/>
+<rect x="108" y="36" width="10" height="46" rx="1.5" fill="#43444B"/>
+<rect x="124" y="18" width="10" height="64" rx="1.5" fill="#43444B"/>
+<rect x="10" y="85" width="130" height="3" rx="1.5"/>
+</g>
+<rect class="iso-wh" id="iso-wh3" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(185 129)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="10" y="20" width="38" height="22" rx="2"/>
+<rect x="54" y="20" width="38" height="22" rx="2"/>
+<rect x="98" y="20" width="38" height="22" rx="2"/>
+<rect x="10" y="50" width="60" height="3.5" rx="1.7"/>
+<rect x="10" y="58" width="100" height="3.5" rx="1.7"/>
+<rect x="10" y="67" width="130" height="19" rx="2"/>
+</g>
+<rect class="iso-wh" id="iso-wh4" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(350 129)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="8" y="19" width="34" height="68" rx="2"/>
+<rect x="48" y="19" width="94" height="68" rx="2" fill="#2F3036"/>
+<rect x="56" y="28" width="52" height="4" rx="2"/>
+<rect x="56" y="37" width="72" height="4" rx="2"/>
+<rect x="56" y="50" width="78" height="28" rx="2"/>
+</g>
+<rect class="iso-wh" id="iso-wh5" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(20 238)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="10" y="20" width="38" height="22" rx="2"/>
+<rect x="54" y="20" width="38" height="22" rx="2"/>
+<rect x="98" y="20" width="38" height="22" rx="2"/>
+<rect x="10" y="50" width="60" height="3.5" rx="1.7"/>
+<rect x="10" y="58" width="100" height="3.5" rx="1.7"/>
+<rect x="10" y="67" width="130" height="19" rx="2"/>
+</g>
+<rect class="iso-wh" id="iso-wh6" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(185 238)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="40" y="22" width="70" height="62" rx="3" fill="#2F3036" stroke="#45464D" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<rect x="50" y="32" width="50" height="5" rx="2.5"/>
+<rect x="50" y="43" width="50" height="8" rx="2"/>
+<rect x="50" y="56" width="50" height="8" rx="2"/>
+<rect x="62" y="70" width="26" height="7" rx="3.5" fill="#3E4048"/>
+</g>
+<rect class="iso-wh" id="iso-wh7" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g transform="translate(350 238)">
+<rect width="150" height="94" rx="4" fill="#25262C" stroke="rgba(255,255,255,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<path d="M0 12H150" stroke="rgba(255,255,255,.06)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+<g fill="#55565C"><circle cx="7" cy="6" r="1.7"/><circle cx="12.5" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/></g>
+<rect x="27" y="4.6" width="64" height="2.8" rx="1.4" fill="#3A3B42"/>
+<g fill="#34353C">
+<rect x="12" y="56" width="10" height="26" rx="1.5" fill="#43444B"/>
+<rect x="28" y="42" width="10" height="40" rx="1.5" fill="#43444B"/>
+<rect x="44" y="50" width="10" height="32" rx="1.5" fill="#43444B"/>
+<rect x="60" y="32" width="10" height="50" rx="1.5" fill="#43444B"/>
+<rect x="76" y="45" width="10" height="37" rx="1.5" fill="#43444B"/>
+<rect x="92" y="24" width="10" height="58" rx="1.5" fill="#43444B"/>
+<rect x="108" y="36" width="10" height="46" rx="1.5" fill="#43444B"/>
+<rect x="124" y="18" width="10" height="64" rx="1.5" fill="#43444B"/>
+<rect x="10" y="85" width="130" height="3" rx="1.5"/>
+</g>
+<rect class="iso-wh" id="iso-wh8" width="150" height="94" rx="4" fill="rgba(59,91,255,.16)" stroke="#8EA4FF" stroke-width="1.2" vector-effect="non-scaling-stroke" opacity="0"/>
+</g>
+<g id="iso-r0"></g></g></g>
+<g class="iso-curs">
+<g class="iso-cur" data-u="90" data-v="290" transform="translate(650 137.4)"><path d="M0 0l11 6.5-5 1.2-2.4 4.8z" fill="#3E8BF5" stroke="#fff" stroke-width="1" stroke-linejoin="round"/><rect class="iso-pill" x="10" y="12" width="131.3" height="17" rx="3.5" fill="#3E8BF5"/><text x="17" y="24.2" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10" letter-spacing=".8" fill="#fff">INTAKE SPECIALIST</text></g>
+<g class="iso-cur" data-u="245" data-v="284" transform="translate(782 186.6)"><path d="M0 0l11 6.5-5 1.2-2.4 4.8z" fill="#37A65A" stroke="#fff" stroke-width="1" stroke-linejoin="round"/><rect class="iso-pill" x="10" y="12" width="69.2" height="17" rx="3.5" fill="#37A65A"/><text x="17" y="24.2" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10" letter-spacing=".8" fill="#fff">ADJUSTER</text></g>
+<g class="iso-cur" data-u="438" data-v="296" transform="translate(930.4 254.2)"><path d="M0 0l11 6.5-5 1.2-2.4 4.8z" fill="#E5813A" stroke="#fff" stroke-width="1" stroke-linejoin="round"/><rect class="iso-pill" x="10" y="12" width="62.3" height="17" rx="3.5" fill="#E5813A"/><text x="17" y="24.2" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10" letter-spacing=".8" fill="#fff">ANALYST</text></g>
+<g class="iso-cur" data-u="402" data-v="169" transform="translate(1005.1 200.4)"><path d="M0 0l11 6.5-5 1.2-2.4 4.8z" fill="#8B5CF0" stroke="#fff" stroke-width="1" stroke-linejoin="round"/><rect class="iso-pill" x="10" y="12" width="89.9" height="17" rx="3.5" fill="#8B5CF0"/><text x="17" y="24.2" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10" letter-spacing=".8" fill="#fff">UNDERWRITER</text></g>
+<g class="iso-cur" data-u="428" data-v="64" transform="translate(1112.5 174.4)"><path d="M0 0l11 6.5-5 1.2-2.4 4.8z" fill="#22A9A0" stroke="#fff" stroke-width="1" stroke-linejoin="round"/><rect class="iso-pill" x="10" y="12" width="89.9" height="17" rx="3.5" fill="#22A9A0"/><text x="17" y="24.2" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10" letter-spacing=".8" fill="#fff">CLAIMS LEAD</text></g>
+<g class="iso-cur" data-u="84" data-v="183" transform="translate(732.8 100.1)"><path d="M0 0l11 6.5-5 1.2-2.4 4.8z" fill="#E0503F" stroke="#fff" stroke-width="1" stroke-linejoin="round"/><rect class="iso-pill" x="10" y="12" width="62.3" height="17" rx="3.5" fill="#E0503F"/><text x="17" y="24.2" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10" letter-spacing=".8" fill="#fff">FINANCE</text></g>
+</g><g class="iso-outs">
+<g transform="translate(785.3 515.6)"><rect class="iso-pill" x="-61.2" y="-11" width="122.5" height="22" rx="11" fill="rgba(17,18,22,.92)" stroke="rgba(255,255,255,.2)" stroke-width="1"/><text x="0" y="4.4" text-anchor="middle" font-size="12.5" font-weight="500" fill="#EDEDEB">Personal report</text></g>
+<g transform="translate(990.3 598.1)"><rect class="iso-pill" x="-61.2" y="-11" width="122.5" height="22" rx="11" fill="rgba(17,18,22,.92)" stroke="rgba(255,255,255,.2)" stroke-width="1"/><text x="0" y="4.4" text-anchor="middle" font-size="12.5" font-weight="500" fill="#EDEDEB">Automation plan</text></g>
+<g transform="translate(645.9 571.8)"><rect class="iso-pill" x="-57.9" y="-11" width="115.8" height="22" rx="11" fill="rgba(17,18,22,.92)" stroke="rgba(255,255,255,.2)" stroke-width="1"/><text x="0" y="4.4" text-anchor="middle" font-size="12.5" font-weight="500" fill="#EDEDEB">Company report</text></g>
+<g transform="translate(850.9 654.2)"><rect class="iso-pill" x="-47.9" y="-11" width="95.7" height="22" rx="11" fill="rgba(17,18,22,.92)" stroke="rgba(255,255,255,.2)" stroke-width="1"/><text x="0" y="4.4" text-anchor="middle" font-size="12.5" font-weight="500" fill="#EDEDEB">Process map</text></g>
+</g><g class="iso-chips">
+<g class="iso-chip" id="iso-chip0" transform="translate(818.1 299.4)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="164" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Invoice check<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">2.4 MIN</tspan></text></g>
+<g class="iso-chip" id="iso-chip1" transform="translate(654.1 332.4)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="177" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Read FNOL email<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">3.7 MIN</tspan></text></g>
+<g class="iso-chip" id="iso-chip2" transform="translate(695.1 382)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="209.5" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Outlook → ClaimCenter<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">SYSTEM</tspan></text></g>
+<g class="iso-chip" id="iso-chip3" transform="translate(818.1 398.5)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="203" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Re-key loss details<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">6.0 MIN</tspan></text></g>
+<g class="iso-chip" id="iso-chip4" transform="translate(859.1 448)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="190" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Match attachments<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">5.6 MIN</tspan></text></g>
+<g class="iso-chip" id="iso-chip5" transform="translate(941.1 448)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="170.5" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Excel loss runs<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">SYSTEM</tspan></text></g>
+<g class="iso-chip" id="iso-chip6" transform="translate(1023.1 382)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="170.5" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Coverage check<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">4.5 MIN</tspan></text></g>
+<g class="iso-chip" id="iso-chip7" transform="translate(1146.1 398.5)" opacity="0"><path d="M0 0L14 -16H20" fill="none" stroke="rgba(142,164,255,.6)" stroke-width="1"/><rect class="iso-pill" x="20" y="-27" width="177" height="22" rx="4" fill="rgba(18,20,32,.94)" stroke="rgba(142,164,255,.45)" stroke-width="1"/><text x="30" y="-12.2" font-size="12" fill="#E9ECFF">Assign adjuster<tspan dx="8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="10.5" letter-spacing=".5" fill="#8EA4FF">1.9 MIN</tspan></text></g>
+</g>
+<g class="iso-labels">
+<line x1="170" y1="130.8" x2="511.8" y2="130.8" stroke="rgba(255,255,255,.22)" stroke-width="1"/><circle cx="518.8" cy="130.8" r="2.6" fill="#8EA4FF"/><circle cx="518.8" cy="130.8" r="7" fill="none" stroke="rgba(142,164,255,.35)" stroke-width="1"/><text x="170" y="90.8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="12" letter-spacing="2" fill="#8EA4FF">01</text><text x="170" y="118.8" font-size="27" font-weight="500" letter-spacing="-.4" fill="#FFFFFF">Screens</text><text x="170" y="155.8" font-size="15" fill="rgba(255,255,255,.58)">The apps your people work in</text>
+<line x1="170" y1="330.8" x2="511.8" y2="330.8" stroke="rgba(255,255,255,.22)" stroke-width="1"/><circle cx="518.8" cy="330.8" r="2.6" fill="#8EA4FF"/><circle cx="518.8" cy="330.8" r="7" fill="none" stroke="rgba(142,164,255,.35)" stroke-width="1"/><text x="170" y="290.8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="12" letter-spacing="2" fill="#8EA4FF">02</text><text x="170" y="318.8" font-size="27" font-weight="500" letter-spacing="-.4" fill="#FFFFFF">Data</text><text x="170" y="355.8" font-size="15" fill="rgba(255,255,255,.58)">Steps, systems and time</text>
+<line x1="170" y1="530.8" x2="511.8" y2="530.8" stroke="rgba(255,255,255,.22)" stroke-width="1"/><circle cx="518.8" cy="530.8" r="2.6" fill="#8EA4FF"/><circle cx="518.8" cy="530.8" r="7" fill="none" stroke="rgba(142,164,255,.35)" stroke-width="1"/><text x="170" y="490.8" font-family="'Suisse Intl Mono',ui-monospace,monospace" font-size="12" letter-spacing="2" fill="#8EA4FF">03</text><text x="170" y="518.8" font-size="27" font-weight="500" letter-spacing="-.4" fill="#FFFFFF">Any output</text><text x="170" y="555.8" font-size="15" fill="rgba(255,255,255,.58)">Reports, maps and plans</text>
+</g></svg>
+  </div>
+  <ol class="iso-legend rise d2">
+    <li><i>01</i><b>Screens</b><span>The apps your people work in</span></li>
+    <li><i>02</i><b>Data</b><span>Steps, systems and time</span></li>
+    <li><i>03</i><b>Any output</b><span>Reports, maps and plans</span></li>
+  </ol>
+</section>
+<section class="s-depth">
+  <div class="lvl"><span class="on"><i>1</i>Company</span><span class=""><i>2</i>Team</span><span class=""><i>3</i>Process</span><span class=""><i>4</i>Build plan</span></div>
+  <h2>Company report: where every team’s time goes.</h2>
+  <p class="line">Hours by team and type of work, and the biggest automation opportunities. Here: <b>3,112 h in three weeks, 42% AI could take or draft.</b></p>
+  <div class="appframe"><iframe title="Silow · company report" data-src="app2/index.html?embed=1#company"></iframe></div>
+</section>
+<section class="s-depth">
+  <div class="lvl"><span class="done"><i>1</i>Company</span><span class="on"><i>2</i>Team</span><span class=""><i>3</i>Process</span><span class=""><i>4</i>Build plan</span></div>
+  <h2>Team report: how one team spends its week.</h2>
+  <p class="line">Each work stream, the apps it runs in and the people doing it. Claims intake: <b>45% an agent could take</b>, the biggest stream is FNOL entry.</p>
+  <div class="appframe"><iframe title="Silow · team report" data-src="app2/index.html?embed=1#team/intake"></iframe></div>
+</section>
+<section class="s-depth">
+  <div class="lvl"><span class="done"><i>1</i>Company</span><span class="done"><i>2</i>Team</span><span class="on"><i>3</i>Process</span><span class=""><i>4</i>Build plan</span></div>
+  <h2>Process map: every step, timed from real runs.</h2>
+  <p class="line">Each step, its system and its time, and the one step that slows it down. FNOL to claim set-up: <b>652 notices, 18 steps, slowest is re-keying loss details.</b></p>
+  <div class="appframe"><iframe title="Silow · process map" data-src="app2/index.html?embed=1#case/n1"></iframe></div>
+</section>
+<section class="s-depth">
+  <div class="lvl"><span class="done"><i>1</i>Company</span><span class="done"><i>2</i>Team</span><span class="done"><i>3</i>Process</span><span class="on"><i>4</i>Build plan</span></div>
+  <h2>Build plan: every process comes with one.</h2>
+  <p class="line">What gets built, in which systems, hours back a week and who approves it. Ready to hand to IT. This one: <b>FNOL email → claim draft, 36.4 h a week.</b></p>
+  <div class="appframe"><iframe title="Silow · automation plan item" data-src="app2/index.html?embed=1#plan~sug=fnol"></iframe></div>
+</section>
+<section class="s-close">
+  <h2 class="rise">Pick a team.<br><em>See where the time goes.</em></h2>
+  <p class="lede rise d1">20–30 people and one process you care about. Readout in week four.</p>
+  <div class="site rise d2">silow.ai</div>
+</section>
+</main>
+<script>
+(function(){
+  // ?slide=N shows one slide only (for review boards)
+  const n = parseInt(new URLSearchParams(location.search).get('slide') || '', 10);
+  if (!n) return;
+  const all = [...document.querySelectorAll('#deck > section')];
+  if (!all[n-1]) return;
+  document.documentElement.classList.add('one');
+  all.forEach((s, i) => { if (i !== n-1) s.remove(); });
+  const c = document.getElementById('counter'); if (c) c.style.display = 'none';
+})();
+</script>
+
+<script>
+  const deck = document.getElementById('deck');
+  const slides = [...deck.querySelectorAll(':scope > section')];
+  const counter = document.getElementById('counter');
+  const topbar = document.getElementById('topbar');
+  const pad = n => String(n).padStart(2,'0');
+
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) e.target.querySelectorAll('.rise').forEach(el => el.classList.add('in'));
+  }), { root: deck, threshold: .2 });
+  slides.forEach(s => io.observe(s));
+
+  function cur(){
+    const y = deck.scrollTop + deck.clientHeight * 0.4;
+    let i = 0; slides.forEach((s, k) => { if (s.offsetTop <= y) i = k; });
+    return i;
+  }
+  function syncChrome(){
+    const i = cur();
+    counter.textContent = pad(i+1);
+    const dark = slides[i].classList.contains('dark');
+    topbar.classList.toggle('on-dark', dark);
+    counter.style.color = dark ? 'rgba(255,255,255,.5)' : '';
+  }
+  deck.addEventListener('scroll', syncChrome, { passive:true });
+  syncChrome();
+
+  let goT = null;
+  const go = i => { const s = slides[Math.max(0, Math.min(i, slides.length-1))];
+    deck.scrollTo({ top: s.offsetTop, behavior:'smooth' });
+    clearTimeout(goT); goT = setTimeout(() => { if (Math.abs(deck.scrollTop - s.offsetTop) > 4) deck.scrollTo({ top: s.offsetTop, behavior:'instant' }); }, 1100); };
+  ['wheel','pointerdown'].forEach(ev => deck.addEventListener(ev, () => clearTimeout(goT), { passive:true }));
+  addEventListener('keydown', e => {
+    const i = cur();
+    if (['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); go(i+1); }
+    if (['ArrowUp','ArrowLeft','PageUp'].includes(e.key))         { e.preventDefault(); go(i-1); }
+    if (e.key === 'Home') { e.preventDefault(); go(0); }
+    if (e.key === 'End')  { e.preventDefault(); go(slides.length-1); }
+  });
+
+  // lazy iframes + key forwarding from the embedded app
+  document.querySelectorAll('iframe[data-src]').forEach(fr => {
+    new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { fr.src = fr.dataset.src; o.disconnect(); } },
+      { root: deck, rootMargin:'100% 0px' }).observe(fr.closest('section'));
+  });
+  addEventListener('message', e => { const k = e.data && e.data.silowDeckKey; if (!k) return;
+    dispatchEvent(new KeyboardEvent('keydown', { key: k === 'ArrowLeft' ? 'ArrowUp' : k === 'ArrowRight' ? 'ArrowDown' : k })); });
+</script>
+
+<!-- Landing hero conveyor animation (Three.js data stream) -->
+<script type="module">
+  import { initDataStream } from './assets/datastream.js';
+  const cv = document.getElementById('stream-canvas');
+  if (cv) {
+    try {
+      initDataStream(cv, ['./assets/desk-mac-1.jpg','./assets/desk-win-1.jpg','./assets/desk-mac-2.jpg','./assets/desk-win-2.jpg']);
+    } catch (e) { /* static slide stays */ }
+  }
+</script>
+<script>
+/* slide 03 (v27-V1): screens -> data -> outputs. One slow pulse every 1.5 s descends the stack. */
+(function(){
+  const sec = document.querySelector('.s-iso'); if (!sec) return;
+  const svg = sec.querySelector('.iso-svg');
+  const AX = 0.82, AY = 0.33, OX = 814, OY = [12, 212, 412], TH = 9;
+  const COLS = [{"u": 135.0, "v": 130.0, "w": 3, "s": 0}, {"u": 85.0, "v": 280.0, "w": 6, "s": 2}, {"u": 185.0, "v": 330.0, "w": 7, "s": 2}, {"u": 285.0, "v": 280.0, "w": 7, "s": 3}, {"u": 385.0, "v": 330.0, "w": 8, "s": 3}, {"u": 435.0, "v": 280.0, "w": 8, "s": 3}, {"u": 385.0, "v": 130.0, "w": 5, "s": 1}, {"u": 485.0, "v": 80.0, "w": 2, "s": 1}];
+  const P = (k, u, v) => [OX + AX * (u - v), OY[k] + AY * (u + v)];
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = id => document.getElementById(id);
+  const el = (tag, at, parent) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); if (parent) parent.appendChild(e); return e; };
+  const mqMob = matchMedia('(max-width:900px)'), mqRM = matchMedia('(prefers-reduced-motion: reduce)');
+  const fitView = () => svg.setAttribute('viewBox', mqMob.matches ? '448 0 760 712' : '0 0 1440 720');
+  fitView(); mqMob.addEventListener && mqMob.addEventListener('change', () => { fitView(); maybeRun(); });
+  // pill widths from real text metrics once fonts are in
+  const fitPills = () => svg.querySelectorAll('.iso-pill').forEach(r => { const t = r.nextElementSibling; if (!t || !t.getComputedTextLength) return;
+    const x = +r.getAttribute('x'), tx = +t.getAttribute('x'), len = t.getBBox().width;
+    if (t.getAttribute('text-anchor') === 'middle') { r.setAttribute('x', (-len / 2 - 11).toFixed(1)); r.setAttribute('width', (len + 22).toFixed(1)); }
+    else r.setAttribute('width', (tx - x + len + (tx - x)).toFixed(1)); });
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => { try { fitPills(); } catch (e) {} });
+
+  const tiles = COLS.map((c, i) => $('iso-tile' + i)), segs = COLS.map((c, i) => $('iso-seg' + i) || { setAttribute(){} }), chips = COLS.map((c, i) => $('iso-chip' + i));
+  const wh = [...Array(9)].map((_, i) => $('iso-wh' + i)), dims = [0, 1, 2, 3].map(i => $('iso-dim' + i)), sfs = [0, 1, 2, 3].map(i => $('iso-sf' + i));
+  const hl = [0, 1].map(k => COLS.map((c, n) => $('iso-hl' + k + '-' + n))); let hv = [COLS.map(() => 0), COLS.map(() => 0)];
+  const curs = [...svg.querySelectorAll('.iso-cur')].map((g, i) => ({ g, u: +g.dataset.u, v: +g.dataset.v, ph: i * 1.7, T1: 11 + i * 1.3, T2: 14 + i * .9 }));
+  const lp = [$('iso-p0'), $('iso-p1')], rp = [$('iso-r0'), $('iso-r1'), $('iso-r2')];
+  // event clocks (seconds, -1 = never)
+  const tT = COLS.map(() => -1), tW = wh.map(() => -1), tS = dims.map(() => -1);
+  let pulses = [], ripples = [], run = false, raf = 0, clock = 0, last = 0, nextEmit = 0, bag = [];
+  const sm = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+  const ease = x => .5 - .5 * Math.cos(Math.PI * Math.min(1, Math.max(0, x)));
+  const env = (e, rise, hold, fall) => e < 0 ? 0 : e < rise ? sm(e / rise) : e < rise + hold ? 1 : Math.exp(-(e - rise - hold) / fall);
+  const pick = () => { if (!bag.length) { bag = COLS.map((_, i) => i); for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; } } return bag.pop(); };
+  const ripple = (k, u, v, t) => { ripples.push({ t, e: el('circle', { cx: u, cy: v, r: 2, fill: 'none', stroke: '#B4C2FF', 'stroke-width': 1.2, 'vector-effect': 'non-scaling-stroke' }, rp[k]) }); };
+  const emit = t => {
+    const i = pick(), c = COLS[i];
+    const g = el('g', { opacity: 0 }, lp[0]);
+    el('rect', { x: -1, y: -96, width: 2, height: 96, rx: 1, fill: 'url(#iso-tail)' }, g);
+    el('circle', { cx: 0, cy: 0, r: 20, fill: 'url(#iso-halo)' }, g);
+    el('circle', { cx: 0, cy: 0, r: 2.8, fill: '#F7F8FF' }, g);
+    pulses.push({ i, t, g, stage: 0, x: P(0, c.u, c.v)[0], y0: P(0, c.u, c.v)[1], y1: P(1, c.u, c.v)[1], y2: P(2, c.u, c.v)[1] });
+    tW[c.w] = t; ripple(0, c.u, c.v, t);
+  };
+  const S1 = .25, D1 = 1.75, GAP = .35, D2 = 1.75;   // travel: ~3.8 s top -> bottom
+  const frame = now => {
+    if (!run) { raf = 0; return; }
+    const dt = Math.min(.05, (now - last) / 1000); last = now; clock += dt; const t = clock;
+    if (t >= nextEmit) { emit(t); nextEmit = t + 1.5; }
+    const hw = [COLS.map(() => 0), COLS.map(() => 0)];
+    for (const p of pulses) {
+      const e = t - p.t, c = COLS[p.i];
+      let y, a;
+      if (e < S1 + D1) { const k = ease((e - S1) / D1); y = p.y0 + (p.y1 - p.y0) * k; a = sm((e - S1) / .35) * (1 - sm((e - S1 - D1 + .12) / .12)); }
+      else if (e < S1 + D1 + GAP) { y = p.y1; a = 0; if (p.stage === 0) { p.stage = 1; tT[p.i] = t; ripple(1, c.u, c.v, t); lp[1].appendChild(p.g); } }
+      else { const k = ease((e - S1 - D1 - GAP) / D2); y = p.y1 + (p.y2 - p.y1) * k; a = sm((e - S1 - D1 - GAP) / .35) * (1 - sm((e - S1 - D1 - GAP - D2 + .12) / .12));
+        if (k >= 1 && p.stage === 1) { p.stage = 2; tS[c.s] = t; ripple(2, c.u, c.v, t); p.dead = true; } }
+      p.g.setAttribute('transform', 'translate(' + p.x.toFixed(1) + ' ' + y.toFixed(1) + ')'); p.g.setAttribute('opacity', a.toFixed(3));
+      const seg = e < S1 + D1 + GAP * .5 ? 0 : 1; hw[seg][p.i] = Math.max(hw[seg][p.i], a);
+    }
+    for (let k = 0; k < 2; k++) for (let n = 0; n < COLS.length; n++) { hv[k][n] = Math.max(hw[k][n], hv[k][n] - dt / 1.2); hl[k][n].setAttribute('opacity', (.42 * hv[k][n]).toFixed(3)); }
+    pulses = pulses.filter(p => { if (p.dead) p.g.remove(); return !p.dead; });
+    ripples = ripples.filter(r => { const e = (t - r.t) / 1.6; if (e >= 1) { r.e.remove(); return false; }
+      r.e.setAttribute('r', (3 + 30 * ease(e)).toFixed(2)); r.e.setAttribute('opacity', (.7 * (1 - e)).toFixed(3)); return true; });
+    tiles.forEach((n, i) => { const e = tT[i] < 0 ? -1 : t - tT[i]; const v = env(e, .6, .5, 2.6);
+      n.setAttribute('opacity', ((tT[i] < 0 ? .04 : .16) + .84 * v).toFixed(3));
+      segs[i].setAttribute('opacity', ((tT[i] < 0 ? .0 : .14) + .7 * v).toFixed(3));
+      chips[i].setAttribute('opacity', (e < 0 ? 0 : sm(e / .5) * (1 - sm((e - 2.4) / .7))).toFixed(3)); });
+    wh.forEach((n, i) => { const e = tW[i] < 0 ? -1 : t - tW[i]; n.setAttribute('opacity', (env(e, .4, .3, .8)).toFixed(3)); });
+    dims.forEach((n, i) => { const e = tS[i] < 0 ? -1 : t - tS[i], v = env(e, .8, .6, 3.2); n.setAttribute('opacity', (.6 - .56 * v).toFixed(3)); sfs[i].setAttribute('opacity', (.9 * v).toFixed(3)); });
+    for (const c of curs) { const u = c.u + 15 * Math.sin(6.283 * t / c.T1 + c.ph), v = c.v + 9 * Math.sin(6.283 * t / c.T2 + c.ph * 1.3);
+      const q = P(0, u, v); c.g.setAttribute('transform', 'translate(' + q[0].toFixed(1) + ' ' + q[1].toFixed(1) + ')'); }
+    raf = requestAnimationFrame(frame);
+  };
+  let visible = false, started = false;
+  const maybeRun = () => {
+    const want = visible && !document.hidden && !mqMob.matches && !mqRM.matches;
+    if (want && !run) {
+      if (!started) { started = true; tiles.forEach(n => n.setAttribute('opacity', .04)); segs.forEach(n => n.setAttribute('opacity', 0)); dims.forEach(n => n.setAttribute('opacity', .6)); nextEmit = clock + .6; }
+      run = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(frame);
+    } else if (!want) run = false;
+  };
+  new IntersectionObserver(es => es.forEach(e => { visible = e.isIntersecting; maybeRun(); }), { root: document.documentElement.classList.contains('one') ? null : document.getElementById('deck'), threshold: .25 }).observe(sec);
+  document.addEventListener('visibilitychange', maybeRun);
+  mqRM.addEventListener && mqRM.addEventListener('change', maybeRun);
+  if (document.documentElement.classList.contains('one')) { visible = true; maybeRun(); }
+})();
+</script>
+</body>
+</html>
