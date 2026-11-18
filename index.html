@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Silow — for insurance operations</title><!-- rev:ins-v28-client -->
+<title>Silow — see where the time goes</title><!-- rev:ins-v28-client -->
 <style>
   @font-face { font-family:"Suisse Intl"; src:url("./fonts/SuisseIntl-Regular.otf") format("opentype"); font-weight:400; font-display:swap; }
   @font-face { font-family:"Suisse Intl"; src:url("./fonts/SuisseIntl-Medium.otf") format("opentype"); font-weight:500; font-display:swap; }
@@ -344,20 +344,25 @@
 .dep .hipaa{ margin-top:14px; padding-left:14px; border-left:2px solid var(--accent); font-size:clamp(15px,1.1vw,18px); line-height:1.45; color:var(--ink-2); }
 .tl2-axis.wk span, .tl2-axis.wk span:first-child, .tl2-axis.wk span:last-child{ transform:translateX(-50%); }
 
+
+.book{ display:inline-flex; align-items:center; gap:10px; margin-top:44px; padding:18px 34px; border-radius:999px; background:var(--accent); color:#fff; text-decoration:none; font-size:clamp(18px,1.4vw,22px); font-weight:500; letter-spacing:-0.01em; box-shadow:0 14px 34px -14px rgba(59,91,255,.6); transition:transform .2s ease, box-shadow .2s ease; }
+.book:hover{ transform:translateY(-1px); box-shadow:0 18px 40px -14px rgba(59,91,255,.7); }
+.book span{ transition:transform .2s ease; } .book:hover span{ transform:translateX(3px); }
+.s-close .site{ margin-top:28px; }
 </style>
 </head>
 <body>
 
 <div class="top" id="topbar">
   <img src="./assets/logo-upd.svg" alt="Silow">
-  <span class="r">silow.ai · insurance</span>
+  <span class="r">silow.ai</span>
 </div>
 <div class="counter" id="counter">01</div>
 
 <main id="deck">
 <section class="s-cover">
   <div class="stream-band rise in" aria-hidden="true"><canvas id="stream-canvas"></canvas></div>
-  <div class="eyebrow rise in d1">Silow · for insurance operations</div>
+  <div class="eyebrow rise in d1">Silow · for operations teams</div>
   <h1 class="rise in d2">See which step<br><em>is costing you the time.</em></h1>
   <p class="lede rise in d3">Silow records how work runs across your apps and shows <b>what&nbsp;to&nbsp;automate&nbsp;first.</b></p>
 </section>
@@ -984,7 +989,7 @@
 <section class="s-depth">
   <div class="lvl"><span class="on"><i>1</i>Company</span><span class=""><i>2</i>Team</span><span class=""><i>3</i>Process</span><span class=""><i>4</i>Build plan</span></div>
   <h2>Company report: where every team’s time goes.</h2>
-  <p class="line">Hours by team and type of work, and the biggest automation opportunities. Here: <b>3,112 h in three weeks, 42% AI could take or draft.</b></p>
+  <p class="line">Hours by team and type of work, and the biggest automation opportunities. Example, an insurance carrier: <b>3,112 h in three weeks, 42% AI could take or draft.</b></p>
   <div class="appframe"><iframe title="Silow · company report" data-src="app2/index.html?embed=1#company"></iframe></div>
 </section>
 <section class="s-depth">
@@ -1008,6 +1013,7 @@
 <section class="s-close">
   <h2 class="rise">Pick a team.<br><em>See where the time goes.</em></h2>
   <p class="lede rise d1">20–30 people and one process you care about. Readout in week four.</p>
+  <a class="book rise d2" href="https://cal.com/silow-ai/silow-demo" target="_blank" rel="noopener">Book a demo <span aria-hidden="true">→</span></a>
   <div class="site rise d2">silow.ai</div>
 </section>
 </main>
